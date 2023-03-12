@@ -1,0 +1,29 @@
+---
+- name: Configure docker-remote-dev in local ssh config and docker context
+  hosts: localhost
+  gather_subset: ['env','!all','!min']
+
+  tasks:
+    - name: Add docker-remote-dev config block to SSH config file
+      blockinfile:
+        path: "{{ ansible_env.HOME }}/.ssh/config"
+        marker: "### {mark} DOCKER REMOTE DEV ###"
+        block: |
+          Host docker-remote-dev
+            Hostname 34.195.175.105
+            User ubuntu
+            IdentityFile ~/.ssh/awseast.pem
+
+    - name: Get docker context
+      command: docker context list --format json
+      register: get_docker_context
+      changed_when: false
+    - name: Parse docker context
+      set_fact:
+        docker_context: "{{ get_docker_context.stdout | from_json | selectattr('Name', 'eq', 'docker-remote-dev') | first | default({}) }}"
+    - name: Create docker context docker-remote-dev
+      command: docker context create docker-remote-dev --docker "host=ssh://docker-remote-dev"
+      when: not docker_context
+    - name: Use docker context docker-remote-dev
+      command: docker context use docker-remote-dev
+      when: not (docker_context.Current | default(false))

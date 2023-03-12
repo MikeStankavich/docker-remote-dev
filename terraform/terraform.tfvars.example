@@ -1,0 +1,11 @@
+aws_access_key = ""
+aws_secret_key = ""
+aws_region     = "us-east-1"
+
+vpc_cidr    = "x.x.x.x/16"
+subnet_cidr = "x.x.x.x/24"
+ingress_cidr = "0.0.0.0/0"
+
+aws_instance_type = "t3.micro"
+key_pair_name = "<your keypair name>"
+# this app currently assumes that you already created a keypair and saved a .PEM file in your local ssh config ~/.ssh
